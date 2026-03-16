@@ -1,0 +1,13 @@
+[Unit]
+Description=Spotify KVM Auto-Switcher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/spotify-kvm-switcher --config %h/.config/spotify-kvm-switcher/config.toml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

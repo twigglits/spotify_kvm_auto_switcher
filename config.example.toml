@@ -1,0 +1,32 @@
+# Spotify KVM Auto-Switcher Configuration
+#
+# Copy this file to config.toml and fill in your values.
+# Run `python scripts/identify_usb.py` to find your keyboard/mouse VID:PID.
+# Run `python scripts/setup_auth.py` to complete Spotify OAuth and see device names.
+
+# How long to wait after the first USB event before triggering a transfer.
+# KVM switches cause multiple rapid USB events; this collapses them into one.
+debounce_seconds = 2.0
+
+[spotify]
+client_id = "YOUR_SPOTIFY_CLIENT_ID"
+client_secret = "YOUR_SPOTIFY_CLIENT_SECRET"
+
+# The Spotify Connect device name for THIS machine.
+# Must match exactly what appears in Spotify's device list.
+# Run `python scripts/setup_auth.py` to see available device names.
+device_name = "My Machine"
+
+[usb]
+# List of USB devices to watch for connection events.
+# When any of these reconnect, a KVM switch is assumed.
+# Run `python scripts/identify_usb.py` to find your VID:PID values.
+
+[[usb.watched_devices]]
+ID_VENDOR_ID = "046d"    # e.g. Logitech
+ID_MODEL_ID = "c52b"     # e.g. Unifying Receiver
+
+# Add more devices as needed:
+# [[usb.watched_devices]]
+# ID_VENDOR_ID = "04f2"
+# ID_MODEL_ID = "0112"

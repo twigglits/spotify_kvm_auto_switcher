@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spotify-kvm-switcher"
+version = "0.1.0"
+description = "Automatically transfer Spotify playback when a KVM switch changes the active machine"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = [
+    "spotipy>=2.23.0",
+    "usb-monitor>=1.20",
+    "tomli>=2.0.0; python_version < '3.11'",
+]
+
+[project.scripts]
+spotify-kvm-switcher = "spotify_kvm_switcher.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
