@@ -38,7 +38,13 @@ Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections 
 - Logs: `~/Library/Logs/spotify-kvm-switcher.log` and `~/Library/Logs/spotify-kvm-switcher.err`
 - Service management: `launchctl load/unload ~/Library/LaunchAgents/com.jeannaude.spotify-kvm-switcher.plist`
 
-### Linux Huawei MateBook X Pro — NOT SET UP
+### Linux Huawei MateBook X Pro (jeansmatexpro) — COMPLETE
+- Spotify Connect device name: `jeansmatexpro`
+- Config: `~/.config/spotify-kvm-switcher/config.toml`
+- Auth token cached at: `~/.config/spotify-kvm-switcher/.spotify_cache`
+- Watched USB devices: Logitech G502 mouse (046d:c08d), Corsair K70 keyboard (1b1c:1b33)
+- Running as systemd user service: `spotify-kvm-switcher.service` (enabled on boot)
+- Logs: `journalctl --user -u spotify-kvm-switcher -f`
 
 ## Key Files
 
