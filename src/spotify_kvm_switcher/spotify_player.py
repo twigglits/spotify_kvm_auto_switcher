@@ -45,5 +45,5 @@ class SpotifyPlayer:
             return
 
         log.info("Transferring playback to '%s'", self._device_name)
-        self._sp.transfer_playback(device_id=target["id"], force_play=False)
+        self._sp.transfer_playback(device_id=target["id"], force_play=True)
         log.info("Playback transferred successfully")

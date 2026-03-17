@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=%h/.local/bin/spotify-kvm-switcher --config %h/.config/spotify-kvm-switcher/config.toml
+ExecStart=%h/Documents/spotify_kvm_auto_switcher/.venv/bin/spotify-kvm-switcher --config %h/.config/spotify-kvm-switcher/config.toml
 Restart=on-failure
 RestartSec=5
 
