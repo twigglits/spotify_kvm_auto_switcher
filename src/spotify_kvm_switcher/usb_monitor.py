@@ -9,6 +9,24 @@ from usbmonitor.attributes import ID_MODEL_ID, ID_VENDOR_ID
 log = logging.getLogger(__name__)
 
 
+def _parse_config_id(value: str) -> int:
+    """Parse a USB VID/PID from config (always 4-char hex like '046d')."""
+    return int(value.strip(), 16)
+
+
+def _parse_runtime_id(value: str) -> int:
+    """Parse a USB VID/PID from the usbmonitor library at runtime.
+
+    Linux usbmonitor reports hex strings (e.g. "046d").
+    macOS usbmonitor reports decimal integers as strings (e.g. "1133").
+    We detect which format by checking for hex-only characters (a-f).
+    """
+    value = value.strip().lower()
+    if any(c in value for c in "abcdef"):
+        return int(value, 16)
+    return int(value)
+
+
 class KVMUSBMonitor:
     """Watches for specific USB device connections and fires a debounced callback.
 
@@ -24,7 +42,7 @@ class KVMUSBMonitor:
             on_switch: Callable invoked (no args) when a KVM switch is detected.
         """
         self._watched = {
-            (d["ID_VENDOR_ID"].lower(), d["ID_MODEL_ID"].lower())
+            (_parse_config_id(d["ID_VENDOR_ID"]), _parse_config_id(d["ID_MODEL_ID"]))
             for d in watched_devices
         }
         self._debounce_seconds = debounce_seconds
@@ -34,8 +52,11 @@ class KVMUSBMonitor:
         self._monitor = USBMonitor()
 
     def _is_watched(self, device_info: dict) -> bool:
-        vid = device_info.get(ID_VENDOR_ID, "").lower()
-        mid = device_info.get(ID_MODEL_ID, "").lower()
+        try:
+            vid = _parse_runtime_id(device_info.get(ID_VENDOR_ID, "0"))
+            mid = _parse_runtime_id(device_info.get(ID_MODEL_ID, "0"))
+        except (ValueError, TypeError):
+            return False
         return (vid, mid) in self._watched
 
     def _on_connect(self, device_id: str, device_info: dict):

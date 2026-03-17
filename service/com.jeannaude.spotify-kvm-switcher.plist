@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/spotify-kvm-switcher</string>
+        <string>/Users/jeannaude/.local/share/spotify-kvm-switcher/.venv/bin/spotify-kvm-switcher</string>
         <string>--config</string>
         <string>/Users/jeannaude/.config/spotify-kvm-switcher/config.toml</string>
     </array>
@@ -19,9 +19,9 @@
     <true/>
 
     <key>StandardOutPath</key>
-    <string>/tmp/spotify-kvm-switcher.log</string>
+    <string>/Users/jeannaude/Library/Logs/spotify-kvm-switcher.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/tmp/spotify-kvm-switcher.err</string>
+    <string>/Users/jeannaude/Library/Logs/spotify-kvm-switcher.err</string>
 </dict>
 </plist>
