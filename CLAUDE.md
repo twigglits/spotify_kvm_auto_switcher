@@ -4,7 +4,7 @@
 
 Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections (via KVM switch) and auto-transfers Spotify playback to the newly active machine.
 
-3 machines share a KVM switch (Linux Workstation, macOS MacBook Pro 15", Linux Huawei MateBook X Pro). All run Spotify on the same account (Twigglits).
+4 machines share a KVM switch (Linux Workstation, Windows 11 Workstation (dual-boot, same hardware), macOS MacBook Pro 15", Linux Huawei MateBook X Pro). All run Spotify on the same account (Twigglits).
 
 ## Architecture
 
@@ -46,6 +46,17 @@ Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections 
 - Running as systemd user service: `spotify-kvm-switcher.service` (enabled on boot)
 - Logs: `journalctl --user -u spotify-kvm-switcher -f`
 
+### Windows 11 Workstation (JEAN-PC) — COMPLETE
+- Spotify Connect device name: `JEAN-PC`
+- Same hardware as Linux Workstation (dual-boot)
+- Config: `~/.config/spotify-kvm-switcher/config.toml`
+- Auth token cached at: `~/.config/spotify-kvm-switcher/.spotify_cache`
+- Watched USB devices: Logitech G502 mouse (046d:c08d), Corsair K70 keyboard (1b1c:1b33)
+- Running as Task Scheduler task: `SpotifyKVMSwitcher` (runs at logon, restarts on failure)
+- Venv: `C:\Users\jnaud\Documents\spotify_kvm_auto_switcher\.venv`
+- Import task: `powershell -Command "Register-ScheduledTask -TaskName 'SpotifyKVMSwitcher' -Xml (Get-Content 'service\spotify-kvm-switcher-task.xml' -Raw)"`
+- Service management: `schtasks /Run /TN "SpotifyKVMSwitcher"` / `schtasks /End /TN "SpotifyKVMSwitcher"`
+
 ## Key Files
 
 - `config.py` — TOML config loading/validation
@@ -57,6 +68,7 @@ Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections 
 - `scripts/setup_auth.py` — one-time OAuth flow
 - `service/spotify-kvm-switcher.service` — systemd user service (Linux)
 - `service/com.jeannaude.spotify-kvm-switcher.plist` — launchd plist (macOS)
+- `service/spotify-kvm-switcher-task.xml` — Task Scheduler XML (Windows)
 
 ## Dependencies
 

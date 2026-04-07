@@ -46,12 +46,12 @@ def run_daemon(config: dict):
     monitor.start()
 
     # Block until shutdown signal
-    if platform.system() != "Darwin":
+    if platform.system() == "Linux":
         # Linux: signal.pause() is efficient and wakes on any signal
         while not shutdown_event.is_set():
             signal.pause()
     else:
-        # macOS: signal.pause() doesn't exist in all contexts; use Event.wait()
+        # macOS/Windows: signal.pause() unavailable; use Event.wait()
         shutdown_event.wait()
 
     log.info("Stopped.")
