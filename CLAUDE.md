@@ -4,7 +4,7 @@
 
 Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections (via KVM switch) and auto-transfers Spotify playback to the newly active machine.
 
-3 machines share a KVM switch (Linux Workstation, macOS MacBook Pro 15", Linux Huawei MateBook X Pro). All run Spotify on the same account (Twigglits).
+3 machines share a KVM switch (Linux Workstation, macOS MAC-JEAN, Linux Huawei MateBook X Pro). All run Spotify on the same account (Twigglits).
 
 ## Architecture
 
