@@ -27,15 +27,16 @@ Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections 
 - Running as systemd user service: `spotify-kvm-switcher.service` (enabled on boot)
 - Logs: `journalctl --user -u spotify-kvm-switcher -f`
 
-### macOS MacBook Pro 15" (Jean's MacBook Pro) — COMPLETE
-- Spotify Connect device name: `Jean\u2019s MacBook Pro` (note: curly apostrophe U+2019, not ASCII)
+### macOS (MAC-JEAN) — COMPLETE
+- Apple Silicon (arm64), macOS 26.5.1, user `jean` (home `/Users/jean`). Replaced the retired MacBook Pro 15", which is no longer in the picture.
+- Spotify Connect device name: `MAC-JEAN` (plain ASCII; matches the computer's Sharing/ComputerName)
 - Config: `~/.config/spotify-kvm-switcher/config.toml`
 - Auth token cached at: `~/.config/spotify-kvm-switcher/.spotify_cache`
-- Venv: `~/.local/share/spotify-kvm-switcher/.venv` (outside ~/Documents to avoid macOS TCC/sandbox restrictions on launchd)
+- Venv: `~/.local/share/spotify-kvm-switcher/.venv` (Homebrew Python 3.14; outside ~/Documents to avoid macOS TCC/sandbox restrictions on launchd). Installed non-editable (`pip install .`) so the daemon doesn't read code from ~/Personal at runtime.
 - Watched USB devices: Logitech G502 mouse (046d:c08d), Corsair K70 keyboard (1b1c:1b33)
-- Running as launchd user agent: `com.jeannaude.spotify-kvm-switcher` (RunAtLoad + KeepAlive)
+- Running as launchd user agent: `com.jeannaude.spotify-kvm-switcher` (RunAtLoad + KeepAlive). Label kept from the prior macOS setup; plist paths now point at /Users/jean.
 - Plist installed at: `~/Library/LaunchAgents/com.jeannaude.spotify-kvm-switcher.plist`
-- Logs: `~/Library/Logs/spotify-kvm-switcher.log` and `~/Library/Logs/spotify-kvm-switcher.err`
+- Logs: `~/Library/Logs/spotify-kvm-switcher.err` (startup/INFO logs go to stderr; the `.log`/stdout file stays empty)
 - Service management: `launchctl load/unload ~/Library/LaunchAgents/com.jeannaude.spotify-kvm-switcher.plist`
 
 ### Linux Huawei MateBook X Pro (jeansmatexpro) — COMPLETE
