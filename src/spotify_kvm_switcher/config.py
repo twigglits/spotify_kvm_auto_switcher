@@ -17,6 +17,9 @@ def load_config(path: Path) -> dict:
         spotify.client_secret
         spotify.device_name
         usb.watched_devices (non-empty list with ID_VENDOR_ID and ID_MODEL_ID)
+
+    Optional keys:
+        spotify.sync_volume (bool, default true)
     """
     path = Path(path)
     if not path.exists():
@@ -34,6 +37,12 @@ def load_config(path: Path) -> dict:
         val = spotify.get(key)
         if not val or val.startswith("YOUR_"):
             raise ValueError(f"spotify.{key} must be set in {path}")
+
+    # Optional: carry the outgoing machine's Spotify volume across on transfer.
+    sync_volume = spotify.get("sync_volume", True)
+    if not isinstance(sync_volume, bool):
+        raise ValueError(f"spotify.sync_volume must be true or false in {path}")
+    config["spotify"]["sync_volume"] = sync_volume
 
     # Validate usb section
     usb = config.get("usb", {})

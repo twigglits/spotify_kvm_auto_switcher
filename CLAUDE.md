@@ -16,6 +16,7 @@ Spotify KVM Auto-Switcher: a Python daemon that monitors USB device connections 
 - Only the machine gaining USB devices fires transfer — no race condition
 - USB VID/PID format differs by platform: Linux `usbmonitor` reports hex strings (`"046d"`), macOS reports decimal strings (`"1133"`). `usb_monitor.py` normalizes both to int for comparison.
 - Spotify device names may contain Unicode (e.g. curly apostrophe U+2019). Config uses TOML `\u` escapes to match exactly.
+- On transfer, the outgoing (active) device's `volume_percent` is carried onto the incoming device: pre-armed before `transfer_playback` to avoid a loud burst from `force_play=True`, then re-applied afterwards with retries (Spotify rejects volume writes to a device that is not active yet). Controlled by `spotify.sync_volume`, default true. This is Spotify's own slider, not the OS mixer.
 
 ## Deployment Status
 

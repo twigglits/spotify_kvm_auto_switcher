@@ -17,7 +17,11 @@ def run_daemon(config: dict):
     """Start the KVM switch daemon. Blocks until SIGTERM/SIGINT."""
     spotify_cfg = config["spotify"]
     sp = get_spotify_client(spotify_cfg["client_id"], spotify_cfg["client_secret"])
-    player = SpotifyPlayer(sp, spotify_cfg["device_name"])
+    player = SpotifyPlayer(
+        sp,
+        spotify_cfg["device_name"],
+        sync_volume=spotify_cfg["sync_volume"],
+    )
 
     def on_kvm_switch():
         player.transfer_playback()
@@ -40,8 +44,9 @@ def run_daemon(config: dict):
     signal.signal(signal.SIGINT, handle_signal)
 
     log.info(
-        "Starting spotify-kvm-switcher (device='%s')",
+        "Starting spotify-kvm-switcher (device='%s', sync_volume=%s)",
         spotify_cfg["device_name"],
+        spotify_cfg["sync_volume"],
     )
     monitor.start()
 
