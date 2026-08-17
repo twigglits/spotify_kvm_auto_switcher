@@ -17,6 +17,13 @@ client_secret = "YOUR_SPOTIFY_CLIENT_SECRET"
 # Run `python scripts/setup_auth.py` to see available device names.
 device_name = "My Machine"
 
+# Carry the volume of the machine you switched away from onto this one.
+# NOTE: this reads and writes Spotify's OWN volume slider, not your OS mixer.
+# If you change volume with system media keys rather than inside Spotify,
+# Spotify's slider never moves and there is nothing to carry.
+# Set to false to leave this machine's Spotify volume alone.
+sync_volume = true
+
 [usb]
 # List of USB devices to watch for connection events.
 # When any of these reconnect, a KVM switch is assumed.

@@ -85,7 +85,8 @@ launchctl load ~/Library/LaunchAgents/com.jeannaude.spotify-kvm-switcher.plist
 2. When a KVM switch occurs, your keyboard/mouse disconnect from one machine and reconnect to another
 3. The machine gaining USB devices detects the connection events
 4. After a debounce period (default 2s), it calls the Spotify API to transfer playback
-5. `force_play=False` preserves the play/pause state - if music was paused, it stays paused
+5. `force_play=True` starts playback on the machine you switched to
+6. The Spotify volume of the machine you switched *away from* is carried over, so playback continues at the level you had it
 
 ## Configuration Reference
 
@@ -96,9 +97,21 @@ debounce_seconds = 2.0          # Collapse rapid USB events into one transfer
 client_id = "..."               # From Spotify Developer Dashboard
 client_secret = "..."           # From Spotify Developer Dashboard
 device_name = "My Machine"      # This machine's Spotify Connect name
+sync_volume = true              # Carry the previous machine's Spotify volume across
 
 [usb]
 [[usb.watched_devices]]
 ID_VENDOR_ID = "046d"           # USB Vendor ID (hex)
 ID_MODEL_ID = "c52b"            # USB Model ID (hex)
 ```
+
+## Volume Carry-Over
+
+When playback transfers, the new machine adopts the Spotify volume of the machine
+it transferred from, so switching seats does not change how loud your music is.
+
+This works on **Spotify's own volume slider only**. The Spotify Web API cannot see
+or change your operating system's mixer, so if you set volume with system media
+keys instead of inside Spotify, Spotify's slider stays at 100% on every machine and
+there is nothing to carry across. Set `sync_volume = false` to turn the behaviour
+off on a given machine.
