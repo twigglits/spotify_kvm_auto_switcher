@@ -75,3 +75,84 @@ def test_already_active_target_does_nothing():
     SpotifyPlayer(sp, "mine").transfer_playback()
     assert sp.transfer_calls == []
     assert sp.volume_calls == []
+
+
+# --- volume carry-over ---
+
+def test_volume_carries_from_active_device():
+    sp = FakeSpotify([device("other", active=True, volume=35), device("mine", volume=90)])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.volume_calls == [(35, "id-mine"), (35, "id-mine")]
+    assert sp.transfer_calls == [("id-mine", True)]
+
+
+def test_volume_is_pre_armed_before_the_transfer():
+    sp = FakeSpotify([device("other", active=True, volume=35), device("mine", volume=90)])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert [call[0] for call in sp.calls] == ["volume", "transfer", "volume"]
+
+
+def test_no_active_device_leaves_volume_alone():
+    sp = FakeSpotify([device("other", volume=35), device("mine", volume=90)])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.volume_calls == []
+    assert sp.transfer_calls == [("id-mine", True)]
+
+
+def test_matching_volume_skips_volume_calls():
+    sp = FakeSpotify([device("other", active=True, volume=40), device("mine", volume=40)])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.volume_calls == []
+    assert sp.transfer_calls == [("id-mine", True)]
+
+
+def test_target_without_volume_support_is_skipped():
+    sp = FakeSpotify([
+        device("other", active=True, volume=35),
+        device("mine", volume=90, supports_volume=False),
+    ])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.volume_calls == []
+    assert sp.transfer_calls == [("id-mine", True)]
+
+
+def test_missing_supports_volume_key_is_treated_as_supported():
+    target = device("mine", volume=90)
+    del target["supports_volume"]
+    sp = FakeSpotify([device("other", active=True, volume=35), target])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.volume_calls == [(35, "id-mine"), (35, "id-mine")]
+
+
+def test_null_source_volume_is_skipped():
+    sp = FakeSpotify([device("other", active=True, volume=None), device("mine", volume=90)])
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.volume_calls == []
+    assert sp.transfer_calls == [("id-mine", True)]
+
+
+def test_sync_volume_disabled_skips_volume_calls():
+    sp = FakeSpotify([device("other", active=True, volume=35), device("mine", volume=90)])
+    SpotifyPlayer(sp, "mine", sync_volume=False).transfer_playback()
+    assert sp.volume_calls == []
+    assert sp.transfer_calls == [("id-mine", True)]
+
+
+def test_transfer_still_happens_when_every_volume_call_fails():
+    sp = FakeSpotify(
+        [device("other", active=True, volume=35), device("mine", volume=90)],
+        volume_errors=99,
+    )
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.transfer_calls == [("id-mine", True)]
+    assert len(sp.volume_calls) == 4  # 1 pre-arm + 3 post-transfer attempts
+
+
+def test_post_transfer_volume_retries_until_it_succeeds():
+    sp = FakeSpotify(
+        [device("other", active=True, volume=35), device("mine", volume=90)],
+        volume_errors=2,  # pre-arm fails, then the first post-transfer attempt fails
+    )
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.transfer_calls == [("id-mine", True)]
+    assert len(sp.volume_calls) == 3
