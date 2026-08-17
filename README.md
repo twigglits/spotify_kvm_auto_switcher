@@ -115,3 +115,8 @@ or change your operating system's mixer, so if you set volume with system media
 keys instead of inside Spotify, Spotify's slider stays at 100% on every machine and
 there is nothing to carry across. Set `sync_volume = false` to turn the behaviour
 off on a given machine.
+
+Expect the new machine to play at its own level for **2–4 seconds** before the
+volume catches up. Spotify will not apply a volume change to a device that is still
+going active — it accepts the request, returns success, and silently discards it —
+so the daemon has to keep writing until the level reads back.
