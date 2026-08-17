@@ -18,11 +18,19 @@ def device(name, *, active=False, volume=50, supports_volume=True):
 
 
 class FakeSpotify:
-    """Replays a canned devices() response and records every call made."""
+    """Replays a live devices() response and records every call made.
 
-    def __init__(self, devices, volume_errors=0):
+    Volume writes mutate the device they target, so the player can read the
+    level back the way it does against the real API. Two failure modes are
+    modelled: volume_errors raises, and volume_drops mimics Spotify's real
+    behaviour on a device that has not finished going active — the write is
+    accepted with a 204 and then silently ignored.
+    """
+
+    def __init__(self, devices, volume_errors=0, volume_drops=0):
         self._devices = devices
         self._volume_errors = volume_errors
+        self._volume_drops = volume_drops
         self.calls = []
         self.volume_calls = []
         self.transfer_calls = []
@@ -30,12 +38,21 @@ class FakeSpotify:
     def devices(self):
         return {"devices": self._devices}
 
+    def volume_of(self, name):
+        return next(d["volume_percent"] for d in self._devices if d["name"] == name)
+
     def volume(self, volume_percent, device_id=None):
         self.calls.append(("volume", volume_percent, device_id))
         self.volume_calls.append((volume_percent, device_id))
         if self._volume_errors:
             self._volume_errors -= 1
             raise RuntimeError("Device not found")
+        if self._volume_drops:
+            self._volume_drops -= 1
+            return
+        for dev in self._devices:
+            if dev["id"] == device_id:
+                dev["volume_percent"] = volume_percent
 
     def transfer_playback(self, device_id, force_play=True):
         self.calls.append(("transfer", device_id, force_play))
@@ -145,7 +162,7 @@ def test_transfer_still_happens_when_every_volume_call_fails():
     )
     SpotifyPlayer(sp, "mine").transfer_playback()
     assert sp.transfer_calls == [("id-mine", True)]
-    assert len(sp.volume_calls) == 4  # 1 pre-arm + 3 post-transfer attempts
+    assert len(sp.volume_calls) == 1 + spotify_player.VOLUME_RETRY_ATTEMPTS
 
 
 def test_post_transfer_volume_retries_until_it_succeeds():
@@ -156,3 +173,27 @@ def test_post_transfer_volume_retries_until_it_succeeds():
     SpotifyPlayer(sp, "mine").transfer_playback()
     assert sp.transfer_calls == [("id-mine", True)]
     assert len(sp.volume_calls) == 3
+    assert sp.volume_of("mine") == 35
+
+
+# --- silently dropped writes: the bug that made carry-over look like it worked ---
+
+def test_silently_dropped_volume_write_is_retried_until_it_reads_back():
+    sp = FakeSpotify(
+        [device("other", active=True, volume=35), device("mine", volume=90)],
+        volume_drops=2,  # accepted with a 204, then ignored — no exception raised
+    )
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert len(sp.volume_calls) == 3  # pre-arm + 1 dropped + 1 that lands
+    assert sp.volume_of("mine") == 35
+
+
+def test_gives_up_when_the_volume_never_sticks():
+    sp = FakeSpotify(
+        [device("other", active=True, volume=35), device("mine", volume=90)],
+        volume_drops=99,
+    )
+    SpotifyPlayer(sp, "mine").transfer_playback()
+    assert sp.transfer_calls == [("id-mine", True)]
+    assert len(sp.volume_calls) == 1 + spotify_player.VOLUME_RETRY_ATTEMPTS
+    assert sp.volume_of("mine") == 90  # left at its own level, transfer still happened
